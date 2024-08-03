@@ -31,31 +31,49 @@ def main():
 
     try:
         initial_query = get_user_input("Введите запрос для поиска на Википедии: ")
+        if initial_query.strip().lower() == 'q':
+            return
         search_wikipedia(browser, initial_query)
 
         while True:
             user_action = get_user_input(
                 "Выберите действие: \n1. Листать параграфы текущей статьи\n2. Перейти на одну из связанных страниц\n3. Выйти из программы\nВведите номер действия: ").strip()
-
+            if user_action == 'q':
+                break
             if user_action == '1':
-                list_paragraphs(browser)
+                if list_paragraphs(browser) == 'q':
+                    break
+
             elif user_action == '2':
                 internal_links = list_internal_links(browser)
 
-                link_choice = int(get_user_input("Введите номер ссылки для перехода: ").strip())
+                link_choice = get_user_input("Введите номер ссылки для перехода: ").strip()
+
+                if link_choice.lower() == 'q':
+                    break
+                link_choice = int(link_choice)
+
                 if 1 <= link_choice <= len(internal_links):
                     browser.get(internal_links[link_choice - 1].get_attribute("href"))
 
                     while True:
                         sub_action = get_user_input(
                             "Выберите действие: \n1. Листать параграфы статьи\n2. Перейти на одну из внутренних статей\nВведите номер действия: ").strip()
+                        if sub_action.lower() == 'q':
+                            return
 
                         if sub_action == '1':
-                            list_paragraphs(browser)
+                            if list_paragraphs(browser) == 'q':
+                                return
                             break
                         elif sub_action == '2':
                             internal_links = list_internal_links(browser)
-                            link_choice = int(get_user_input("Введите номер ссылки для перехода: ").strip())
+                            link_choice = get_user_input("Введите номер ссылки для перехода: ").strip()
+                            if link_choice.lower() == 'q':
+                                return
+                            link_choice = int(link_choice)
+
+
                             if 1 <= link_choice <= len(internal_links):
                                 browser.get(internal_links[link_choice - 1].get_attribute("href"))
                             else:
